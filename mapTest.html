@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <style type="text/css">
+      html { height: 100% }      
+      body { height: 100%; margin: 0; padding: 0 }      
+      #map_canvas { height:70%; width:100% text-align:center; vertical-align:middle; }    
+  </style>
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCazcIg7op9I7-h9X4O8hiI_hSESMUy3JM&sensor=false&libraries=drawing">
+  </script>
+<script type="text/javascript">
+/* class */function singleItemMapViewer(idHost, fnSetOutput) {
+    this.aaaClassName = 'singleItemMapViewer';
+    this.eHost = document.getElementById(idHost);
+    this.fnSetOutput = fnSetOutput;
+    this.lastMarker = null;
+    this.circleOptions = {    
+        fillColor: '#00ff00',    
+        fillOpacity: 0.1,    
+        strokeWeight: 1,    
+        clickable: false,    
+        zIndex: 1,    
+        editable: false  
+    };
+    this.polygonOptions = {
+        fillColor: '#00ff00',    
+        fillOpacity: 0.1,    
+        strokeWeight: 1,    
+        clickable: false,    
+        zIndex: 1,    
+        editable: false
+    };
+    this.rectangleOptions = {
+        fillColor: '#00ff00',    
+        fillOpacity: 0.1,    
+        strokeWeight: 1,    
+        clickable: false,    
+        zIndex: 1,    
+        editable: false
+    };
+    this.deleteLastMarker = function() {
+        if (this.lastMarker) {
+            this.lastMarker.setMap(null);
+        }
+    };
+    this.setCircle = function(centerLat, centerLng, radius) {
+        this.deleteLastMarker();
+        var cOpts = this.circleOptions;
+        cOpts.center = new google.maps.LatLng(centerLat, centerLng, true);
+        cOpts.radius = radius;
+        cOpts.map = this.map;
+        this.drawingManager.setDrawingMode(null);
+        this.lastMarker = new google.maps.Circle(cOpts);
+        this.map.panToBounds(this.lastMarker.getBounds());
+        if (this.fnSetOutput) {
+            this.fnSetOutput("Circle:[" + centerLat + ',' + centerLng + '] r=' + radius);
+        }
+    };
+    this.setPolygon = function(aLatLngs, bounds) {
+        this.deleteLastMarker();
+        var pOpts = this.polygonOptions;
+        pOpts.paths = aLatLngs;
+        pOpts.map = this.map;
+        this.drawingManager.setDrawingMode(null);
+        this.lastMarker = new google.maps.Polygon(pOpts);
+        this.map.panToBounds(bounds);
+        if (this.fnSetOutput) {
+            var sOut = 'Polygon:' + aLatLngs.length + ' ';
+            for (var i = 0; i < aLatLngs.length; i++) {
+                sOut += i + '=[' + aLatLngs[i].lat() + ',' + aLatLngs[i].lng() + '] ';
+            }
+            that.fnSetOutput(sOut);
+        }
+    };
+    this.map = new google.maps.Map(this.eHost, {          
+        center: new google.maps.LatLng(31.770207631866714, 34.79644775390625),  // center on Jerusalem
+        zoom: 5,          
+        mapTypeId: google.maps.MapTypeId.HYBRID,
+        scaleControl: false,
+        zoomControl: false,
+        streetViewControl: false,
+        mapTypeControl: false
+    });
+    this.drawingManager = new google.maps.drawing.DrawingManager({  
+       drawingMode: google.maps.drawing.OverlayType.MARKER,  
+       drawingControl: true,  
+       drawingMode: null,
+       drawingControlOptions: {    
+          position: google.maps.ControlPosition.TOP_RIGHT,    
+          drawingModes: [      
+             google.maps.drawing.OverlayType.CIRCLE,      
+             google.maps.drawing.OverlayType.POLYGON,      
+             google.maps.drawing.OverlayType.RECTANGLE      
+             ]  
+       },  
+       circleOptions:this.circleOptions,
+       polygonOptions:this.polygonOptions,
+       rectangleOptions:this.rectangleOptions
+    });
+    // Event handlers - note that we attach a singleItemMapViewerInstance field to the object that will be the this
+    // when this function is called to get back to the instance of this object
+    this.onCircleComplete = function(circle) {
+        that = this.singleItemMapViewerInstance;
+        that.deleteLastMarker();
+        that.lastMarker = circle;
+        if (that.fnSetOutput) {
+            that.fnSetOutput("Circle:[" + circle.getCenter().lat() + ',' + circle.getCenter().lng() + '] r=' + circle.getRadius());
+        }
+    };
+    this.onPolygonComplete = function(polygon) {
+        that = this.singleItemMapViewerInstance;
+        var path = polygon.getPaths().getArray()[0];
+        that.deleteLastMarker();
+        that.lastMarker = polygon;
+        if (that.fnSetOutput) {
+            var sOut = 'Polygon:' + path.getLength() + ' ';
+            for (var i = 0; i < path.getLength(); i++) {
+                sOut += i + '=[' + path.b[i].lat() + ',' + path.b[i].lng() + '] ';
+            }
+            that.fnSetOutput(sOut);
+        }
+    };
+    this.onRectComplete = function(rect) {
+        that = this.singleItemMapViewerInstance;
+        var sOut = 'Polygon:4 ';
+        var bounds = rect.getBounds();
+        var ne = bounds.getNorthEast();
+        var sw = bounds.getSouthWest();
+        sOut += '0=[' + ne.lat() + ',' + ne.lng() + '] ';
+        sOut += '1=[' + sw.lat() + ',' + ne.lng() + '] ';
+        sOut += '2=[' + sw.lat() + ',' + sw.lng() + '] ';
+        sOut += '3=[' + ne.lat() + ',' + sw.lng() + '] ';
+        that.deleteLastMarker();
+        that.lastMarker = rect ;
+        if (that.fnSetOutput) {
+            that.fnSetOutput(sOut);
+        }
+    };
+    this.onMouseDown = function(mouseEvent) {
+        that = this.singleItemMapViewerInstance;
+        if (that.fnSetOutput) {
+            that.fnSetOutput('[' + mouseEvent.latLng.lat() + ',' + mouseEvent.latLng.lng() + ']');
+        }
+    };
+    // End of Event Handlers
+    this.drawingManager.singleItemMapViewerInstance = this; // used to connect to this instance from within the handler
+    google.maps.event.addListener(this.drawingManager, 'circlecomplete', this.onCircleComplete);
+    google.maps.event.addListener(this.drawingManager, 'polygoncomplete', this.onPolygonComplete);
+    google.maps.event.addListener(this.drawingManager, 'rectanglecomplete', this.onRectComplete);
+    this.map.singleItemMapViewerInstance = this; // used to connect to this instance from within the handler
+    google.maps.event.addListener(this.map, 'rightclick', this.onMouseDown);
+    this.drawingManager.setMap(this.map);
+}; // singleItemMapViewer class
+
+function putString(id) {
+    document.getElementById(id).value = getMapOutput();
+}
+function setString(id) {
+    sError = '';
+    var j,k,l,m,n, sLat, sLng, sRadius, lat, lng, r;
+    var s = document.getElementById(id).value;
+    var i = s.indexOf("Circle:");
+    if (i == 0) {
+        i = s.indexOf('[');
+        j = s.indexOf(',');
+        k = s.indexOf(']');
+        l = s.indexOf('r=');
+        if (i == -1 || j == -1 || j < i || k == -1 || k < j || l == -1 || l < k) {
+            sError = "could not parse setString string. " + s;
+        } else {
+            sLat = s.substring(i + 1, j);
+            lat = parseFloat(sLat);
+            sLng = s.substring(j + 1, k);
+            lng = parseFloat(sLng);
+            sRadius = s.substring(l + 2);
+            r = parseFloat(sRadius);
+            if (lat == NaN) {
+                sError = "circle latitude was not a number.";
+            } else if (lng == NaN) {
+                sError = "circle longitude was not a number.";
+            } else if (r == NaN) {
+                sError = "circle radious was not a number.";
+            } else if (r <= 0) {
+                sError = "circle radius was negative or 0.";
+            } else {
+                smv.setCircle(lat, lng, r);
+            }
+
+        }
+    } else {
+        i = s.indexOf("Polygon:");
+        if (i == 0) {
+            i = s.indexOf(':');
+            j = s.indexOf(' ');
+            sCount = s.substring(i + 1, j);
+            cCorners = parseInt(sCount);
+            if (cCorners == NaN) {
+                sError = "polygon corner count was not a number.";
+            } else {
+                s = s.substring(j + 1);
+                var aPath = [];
+                var maxLat, maxLng, minLat, minLng, first = true;
+                for (k = 0; k < cCorners; k++) {
+                    l = s.indexOf(String(k) + '=');
+                    if (l >= 0) {
+                        l = s.indexOf('[') + 1;
+                        s = s.substring(l);
+                        m = s.indexOf(',');
+                        n = s.indexOf(']');
+                        sLat = s.substring(0, m);
+                        lat = parseFloat(sLat);
+                        sLng = s.substring(m + 1, n);
+                        lng = parseFloat(sLng);
+                        if (lat == NaN || lng == NaN) {
+                            sError = "polygon corner " + k + " did not parse to floating point numbers.";
+                            break;
+                        }
+                        aPath.push(new google.maps.LatLng(lat, lng)); 
+                        if (first) {
+                            maxLat = minLat = lat;
+                            maxLng = minLng = lng;
+                            first = false;
+                        } else {
+                            if (lat < minLat) {
+                                minLat = lat;
+                            } else if (lat > maxLat) {
+                                maxLat = lat;
+                            }
+                            if (lng < minLng) {
+                                minLng = lng;
+                            } else if (lng > maxLng) {
+                                maxLng = lng;
+                            }
+                        }
+                        s = s.substring(n + 1);
+                    }
+                }
+                if (sError == '') {
+                    smv.setPolygon(aPath, new google.maps.LatLngBounds(new google.maps.LatLng(minLat, minLng), new google.maps.LatLng(maxLat, maxLng)));
+                }
+            }
+        } else {
+            sError = "setString requires a Circle: or Polygon: string.";
+        }
+        if (sError.length) {
+            alert(sError);
+        }
+    }
+}
+function setMapOutput(s) {
+    document.getElementById('location').innerHTML = s;
+}
+function getMapOutput() {
+    return document.getElementById('location').innerHTML;
+}
+var smv = null;
+function createInstance() {
+    smv = new singleItemMapViewer('map_canvas', setMapOutput);
+}
+</script>
+</head>
+<body onload="createInstance()">
+<div id="map_canvas">Connecting to Google Maps...</div>
+<div id="location">Location</div>
+</div>
+1<button onclick="putString('str1');">Put</button>
+<button onclick="setString('str1');">Set</button>
+<input type="text" size="100" id="str1"/>
+<br>
+2<button onclick="putString('str2');">Put</button>
+<button onclick="setString('str2');">Set</button>
+<input type="text" size="100" id="str2"/>
+<br>
+3<button onclick="putString('str3');">Put</button>
+<button onclick="setString('str3');">Set</button>
+<input type="text" size="100" id="str3"/>
+<br>
+4<button onclick="putString('str4');">Put</button>
+<button onclick="setString('str4');">Set</button>
+<input type="text" size="100" id="str4"/>
+<br>
+5<button onclick="putString('str5');">Put</button>
+<button onclick="setString('str5');">Set</button>
+<input type="text" size="100" id="str5"/>
+<br>
+</body>
+</html>

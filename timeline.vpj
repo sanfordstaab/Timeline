@@ -1,0 +1,128 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+	Version="10.0"
+	VendorName="SlickEdit"
+	TemplateName="PHP"
+	WorkingDir=".">
+	<Config
+		Name="Debug"
+		DebugCallbackName="xdebug"
+		Type="php"
+		OutputFile=""
+		CompilerConfigName="">
+		<Menu>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				Dialog="_php_options_form Run"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveNone"
+				RunFromDir="%rw"
+				Deletable="0">
+				<Exec
+					CmdLine="php_execute %(SLICKEDIT_PHP_EXECUTE_ARGS)"
+					Type="Slick-C"/>
+			</Target>
+			<Target
+				Name="Debug"
+				MenuCaption="&amp;Debug"
+				Dialog="_php_options_form Debug"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveNone"
+				RunFromDir="%rw"
+				Deletable="0">
+				<Exec
+					CmdLine="php_debug"
+					Type="Slick-C"/>
+			</Target>
+			<Target
+				Name="PHP Options"
+				MenuCaption="PHP &amp;Options"
+				ShowOnMenu="HideIfNoCmdLine"
+				Deletable="0">
+				<Exec
+					CmdLine="phpoptions"
+					Type="Slick-C"/>
+			</Target>
+		</Menu>
+		<List Name="PHP Options">
+			<Item
+				Name="AppType"
+				Value="web-local"/>
+			<Item
+				Name="DefaultFile"
+				Value=""/>
+			<Item
+				Name="ScriptArguments"
+				Value=""/>
+			<Item
+				Name="InterpreterArguments"
+				Value=""/>
+			<List Name="Map">
+				<Item
+					Name="RemoteUrl"
+					Value="http://localhost/timeline"/>
+				<Item
+					Name="LocalRoot"
+					Value="C:\xampp\htdocs\TimeLine\"/>
+			</List>
+		</List>
+		<List Name="Xdebug Options">
+			<Item
+				Name="ServerHost"
+				Value="127.0.0.1"/>
+			<Item
+				Name="ServerPort"
+				Value="9000"/>
+			<Item
+				Name="ListenInBackground"
+				Value="1"/>
+			<Item
+				Name="StayInDebugger"
+				Value="1"/>
+			<Item
+				Name="AcceptConnections"
+				Value="always"/>
+			<Item
+				Name="BreakInSession"
+				Value="run"/>
+			<Item
+				Name="show_hidden"
+				Value="1"/>
+			<List Name="Map">
+				<Item
+					Name="RemoteRoot"
+					Value="C:\xampp\htdocs\TimeLine\"/>
+				<Item
+					Name="LocalRoot"
+					Value="C:\xampp\htdocs\TimeLine\"/>
+			</List>
+		</List>
+	</Config>
+	<Files AutoFolders="DirectoryView">
+		<Folder Name="../../php">
+			<Folder Name="logs">
+				<F N="../../php/logs/php_error_log"/>
+			</Folder>
+		</Folder>
+		<F N="ajax.js"/>
+		<F N="biblicalmonth.sql"/>
+		<F N="config.php"/>
+		<F N="DataInput.php"/>
+		<F N="Genesis.txt"/>
+		<F N="Jasher.txt"/>
+		<F N="jsQueryConstants.php"/>
+		<F N="Jubilees.txt"/>
+		<F N="mapTest.html"/>
+		<F N="q.php"/>
+		<F N="qlog.txt"/>
+		<F N="qtest.php"/>
+		<F N="queries.php"/>
+		<F N="qworker.php"/>
+		<F N="t.php"/>
+		<F N="t2.php"/>
+		<F N="test.php"/>
+		<F N="TimeLine.html"/>
+		<F N="timeline.sql"/>
+	</Files>
+</Project>
